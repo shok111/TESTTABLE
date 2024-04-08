@@ -9,67 +9,100 @@
 
 <body>
 
-	<div class="form-container">
-		<form name="submit-to-google-sheet">
-			<input name="email" type="email" placeholder="Email" required>
-			<input name="firstName" type="text" placeholder="First Name">
-			<input name="lastName" type="text" placeholder="Last Name">
-			<button type="submit">Subscribe</button>
-		</form>
+	<form name="submit-to-google-sheet">
+		<input type="date" name="Дата" id="myDate" value="">
+		<input type="text" name="Товар" placeholder="Товар" id="input2" list="datalist2" required>
+		<datalist id="datalist2"></datalist>
+		<input type="text" name="Кількість" placeholder="Кількість" required>
+		<button type="submit">Send</button>
+	</form>
 
-		<div class="loading js-loading is-hidden">
-			<div class="loading-spinner">
-				<svg>
-					<circle cx="25" cy="25" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" />
-				</svg>
-			</div>
-		</div>
-
-		<p class="js-success-message is-hidden">Success!</p>
-		<p class="js-error-message is-hidden">Error!</p>
-	</div>
-
-	<a href="https://docs.google.com/spreadsheets/d/16vDPkBwtMNNMzgbmKfxfOEqGZhtfJha097ZKB23dZdc/edit?usp=sharing"
-		target="_blank">View the Google Sheet</a>
-	<a href="https://github.com/jamiewilson/form-to-google-sheets" target="_blank">View on GitHub</a>
+	<form name="submit-to-google-sheet2">
+		<input type="date" name="Дата" id="myDate1" value="">
+		<input name="ПІБ" placeholder="ПІБ" id="input1" list="datalist1" required />
+		<datalist id="datalist1"></datalist>
+		<input type="text" name="Товар" placeholder="Товар" id="input2" list="datalist2" required>
+		<datalist id="datalist2"></datalist>
+		<input type="text" name="Кількість" placeholder="Кількість" required>
+		<button type="submit">Send</button>
+	</form>
 
 	<script>
-		const scriptURL = 'https://script.google.com/macros/s/AKfycbz6vLt0cQRM5F_82xRbjkr0qchpK5jSt9gY-L3XBgP7knaCzghFF51jNW4wjn3bcQsJ/exec'
+		document.getElementById('myDate').valueAsDate = new Date();
+		document.getElementById('myDate1').valueAsDate = new Date();
+		(function () {
+			var app = "https://script.google.com/macros/s/AKfycbwF8hhgoJ65Q0_5I5ulI_NdJx-xpWIQazIZCA5pHVPxkWnc75Osl-WVwI-Z_fslSt5l/exec",
+				output = '',
+				xhr = new XMLHttpRequest();
+			xhr.open('GET', app);
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState !== 4) return;
+
+				if (xhr.status == 200) {
+					try {
+						var r = JSON.parse(xhr.responseText),
+							result = r["result"];
+
+						for (var i = 0; i < result.length; i++) {
+							var obj = r["result"][i];
+							output += obj.join("<br/>") + "<br/><hr/>";
+						}
+
+						// var datalist1 = document.createElement("datalist");
+						// var datalist2 = document.createElement("datalist");
+						var datalist1 = document.getElementById('datalist1');
+						var datalist2 = document.getElementById('datalist2');
+
+						// Извлекаем данные и добавляем их в datalist
+						r.result.forEach(function (item) {
+							var option1 = document.createElement("option");
+							var option2 = document.createElement("option");
+
+							option1.value = item[0];
+							option2.value = item[1];
+
+							datalist1.appendChild(option1);
+							datalist2.appendChild(option2);
+
+						});
+
+						var input1 = document.getElementById('input1');
+						var input2 = document.getElementById('input2');
+
+						input1.setAttribute('list', 'datalist1');
+						input2.setAttribute('list', 'datalist2');
+
+					} catch (e) { }
+				}
+				console.log(datalist1);
+
+			}
+			xhr.send()
+		})()
+
+
+		// -----------------------------------------------------------------------------------
+
+		const scriptURL = 'https://script.google.com/macros/s/AKfycbzqvisFkrO5WUwM45_JSlW1sZ755GoIV44fPA3xVOiwLHxqE372G7wtjmg668O_6J-f/exec'
 		const form = document.forms['submit-to-google-sheet']
-		const loading = document.querySelector('.js-loading')
-		const successMessage = document.querySelector('.js-success-message')
-		const errorMessage = document.querySelector('.js-error-message')
 
 		form.addEventListener('submit', e => {
 			e.preventDefault()
-			showLoadingIndicator()
 			fetch(scriptURL, { method: 'POST', body: new FormData(form) })
-				.then(response => showSuccessMessage(response))
-				.catch(error => showErrorMessage(error))
+				.then(response => console.log('Success!', response))
+				.catch(error => console.error('Error!', error.message))
 		})
 
-		function showLoadingIndicator() {
-			form.classList.add('is-hidden')
-			loading.classList.remove('is-hidden')
-		}
+		const scriptURL1 = 'https://script.google.com/macros/s/AKfycbzGYUE71sqdvtXM9qfmDS9WpKgt9Qgq3VtwuUPngGBQXVrH5M5Vs1b2TNVMIFjRgTFV/exec'
+		const form1 = document.forms['submit-to-google-sheet2']
 
-		function showSuccessMessage(response) {
-			console.log('Success!', response)
-			setTimeout(() => {
-				successMessage.classList.remove('is-hidden')
-				loading.classList.add('is-hidden')
-			}, 500)
-		}
-
-		function showErrorMessage(error) {
-			console.error('Error!', error.message)
-			setTimeout(() => {
-				errorMessage.classList.remove('is-hidden')
-				loading.classList.add('is-hidden')
-			}, 500)
-		}
+		form1.addEventListener('submit', e => {
+			e.preventDefault()
+			fetch(scriptURL1, { method: 'POST', body: new FormData(form1) })
+				.then(response => console.log('Success!', response))
+				.catch(error => console.error('Error!', error.message))
+		})
 	</script>
-
 </body>
 
 </html>
