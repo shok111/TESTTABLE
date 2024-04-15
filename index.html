@@ -25,9 +25,15 @@
 		<datalist id="datalist2"></datalist>
 		<input type="text" name="Кількість" placeholder="Кількість" required>
 		<button type="submit">Send</button>
+		<button type="button" onclick="resetFields()">Reset</button>
 	</form>
 
 	<script>
+		function resetFields() {
+			document.querySelector('form[name="submit-to-google-sheet2"] input[name="Кількість"]').value = "";
+			document.querySelector('form[name="submit-to-google-sheet2"] input[name="Товар"]').value = "";// Сброс значения поля "Кількість"
+		}
+
 		document.getElementById('myDate').valueAsDate = new Date();
 		document.getElementById('myDate1').valueAsDate = new Date();
 		(function () {
