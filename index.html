@@ -165,21 +165,31 @@
 
 
 		function submitForm(formId) {
-			var formData = new FormData(document.getElementById(formId));
-			fetch('https://script.google.com/macros/s/AKfycbzo050tv_lIpSw1rIPdav1JSoyQRQWD5dJ4CJGQ5vE-pJd3SHT4oLlCRl6XF2s_TbYm/exec', {
-				method: 'POST',
-				body: formData
-			})
-				.then(response => {
-					if (!response.ok) {
-						throw new Error('Произошла ошибка.');
-					}
-					alert('Данные успешно отправлены!');
-				})
-				.catch(error => {
-					console.error('Произошла ошибка:', error);
-				});
-		}
+    let form = document.getElementById(formId);
+    let formData = new FormData(form);
+
+    // Форматируем дату перед отправкой
+    let date = new Date();
+    let formattedDate = date.getFullYear() + '-' + 
+                        (date.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                        date.getDate().toString().padStart(2, '0');
+    
+    formData.append("Дата", formattedDate); // Добавляем дату в формате YYYY-MM-DD
+
+    fetch('https://script.google.com/macros/s/AKfycbzo050tv_lIpSw1rIPdav1JSoyQRQWD5dJ4CJGQ5vE-pJd3SHT4oLlCRl6XF2s_TbYm/exec', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Произошла ошибка.');
+        }
+        alert('Данные успешно отправлены!');
+    })
+    .catch(error => {
+        console.error('Произошла ошибка:', error);
+    });
+}
 	</script>
 </body>
 
