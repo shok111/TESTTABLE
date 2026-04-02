@@ -107,6 +107,52 @@ function startLoading() {
 // Запускаем
 startLoading();
 
+
+const app = "https://google.com";
+
+// 1. Функция получения данных
+function loadData(data) {
+  console.log("УРА! Данные пришли:", data);
+  
+  const dl1 = document.getElementById('datalist1');
+  const dl2 = document.getElementById('datalist2');
+
+  if (!data.clients || !data.products) {
+    console.error("В данных нет полей clients или products!", data);
+    return;
+  }
+
+  data.clients.forEach(c => {
+    let o = document.createElement("option");
+    o.value = c;
+    dl1.appendChild(o);
+  });
+
+  data.products.forEach(p => {
+    let o = document.createElement("option");
+    o.value = p;
+    dl2.appendChild(o);
+  });
+  console.log("Списки в форме успешно обновлены");
+}
+
+// 2. Сама загрузка
+(function() {
+  console.log("Запускаю запрос к Google...");
+  
+  const script = document.createElement("script");
+  // Добавляем t=... чтобы обмануть кэш браузера
+  script.src = app + "?callback=loadData&t=" + Date.now();
+  
+  // Если скрипт вообще не загрузится (например, 404 или блокировка)
+  script.onerror = function() {
+    console.error("ОШИБКА: Не удалось загрузить скрипт по ссылке. Проверьте права доступа в Google (Anyone)!");
+  };
+
+  document.head.appendChild(script);
+})();
+
+  
 </script>
 </body>
 </html>
