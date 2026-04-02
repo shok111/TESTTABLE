@@ -43,69 +43,6 @@
 <datalist id="datalist2"></datalist>
 
 <script>
-// Ссылка на ваш скрипт (проверьте, что она актуальна после Deploy)
-const app = "https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec";
-
-// 1. Установка текущей даты
-document.getElementById('myDate').valueAsDate = new Date();
-
-// 2. Тип формы
-function setType(type){
-  document.getElementById("formType").value = type;
-}
-
-// 3. Динамические поля товаров
-let count = 1;
-function addField(){
-  count++;
-  let div = document.createElement("div");
-  div.innerHTML = `
-    <input type="text" name="Товар${count}" placeholder="Товар" list="datalist2">
-    <input type="text" name="Кількість${count}" placeholder="Кількість"><br><br>
-  `;
-  document.getElementById("items").appendChild(div);
-}
-
-// 4. Функция обработки данных (JSONP)
-function loadData(data) {
-  console.log("Данные получены из GAS:", data); // Проверка в консоли
-  
-  const dl1 = document.getElementById('datalist1');
-  const dl2 = document.getElementById('datalist2');
-
-  // Очищаем списки перед заполнением
-  dl1.innerHTML = "";
-  dl2.innerHTML = "";
-
-  if (data.clients) {
-    data.clients.forEach(c => {
-      let o = document.createElement("option");
-      o.value = c;
-      dl1.appendChild(o);
-    });
-  }
-
-  if (data.products) {
-    data.products.forEach(p => {
-      let o = document.createElement("option");
-      o.value = p;
-      dl2.appendChild(o);
-    });
-  }
-  console.log("Списки заполнены!");
-}
-
-// 5. Загрузка данных через создание тега script
-function startLoading() {
-  console.log("Запрос к GAS отправлен...");
-  let script = document.createElement("script");
-  // Добавляем параметр t, чтобы избежать кэширования браузером
-  script.src = app + "?callback=loadData&t=" + new Date().getTime();
-  document.body.appendChild(script);
-}
-
-// Запускаем
-startLoading();
 
 
 const app = "https://google.com";
