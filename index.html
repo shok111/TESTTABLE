@@ -44,18 +44,22 @@
 
 <script>
 
+// Вставь сюда ссылку на свой GAS скрипт
+const app = "https://script.google.com/macros/s/AKfycbwThPBYjyZUF3u5B-fcD2XhntRHbjU2aMjtae67YCGEpGwxuPs1TmFKrZZPS09tByvKKQ/exec";
 
-const app = "https://google.com";
-
-// 1. Функция получения данных
+// Функция получения данных (JSONP)
 function loadData(data) {
-  console.log("УРА! Данные пришли:", data);
+  console.log("Данные пришли:", data);
   
   const dl1 = document.getElementById('datalist1');
   const dl2 = document.getElementById('datalist2');
 
+  // Очистка старых опций
+  dl1.innerHTML = "";
+  dl2.innerHTML = "";
+
   if (!data.clients || !data.products) {
-    console.error("В данных нет полей clients или products!", data);
+    console.error("В данных нет clients или products!", data);
     return;
   }
 
@@ -70,26 +74,36 @@ function loadData(data) {
     o.value = p;
     dl2.appendChild(o);
   });
-  console.log("Списки в форме успешно обновлены");
+
+  console.log("Списки клиентов и товаров обновлены");
 }
 
-// 2. Сама загрузка
+// Автозагрузка данных из GAS
 (function() {
-  console.log("Запускаю запрос к Google...");
-  
   const script = document.createElement("script");
-  // Добавляем t=... чтобы обмануть кэш браузера
   script.src = app + "?callback=loadData&t=" + Date.now();
-  
-  // Если скрипт вообще не загрузится (например, 404 или блокировка)
   script.onerror = function() {
-    console.error("ОШИБКА: Не удалось загрузить скрипт по ссылке. Проверьте права доступа в Google (Anyone)!");
+    console.error("Не удалось загрузить скрипт! Проверьте права доступа GAS.");
   };
-
   document.head.appendChild(script);
 })();
 
-  
+// Функции добавления поля и установки типа формы
+function addField() {
+  const itemsDiv = document.getElementById("items");
+  const count = itemsDiv.querySelectorAll("input[name^='Товар']").length + 1;
+
+  const html = `
+    <input type="text" name="Товар${count}" placeholder="Товар" list="datalist2">
+    <input type="text" name="Кількість${count}" placeholder="Кількість"><br><br>
+  `;
+  itemsDiv.insertAdjacentHTML("beforeend", html);
+}
+
+function setType(type) {
+  document.getElementById("formType").value = type;
+}
+
 </script>
 </body>
 </html>
