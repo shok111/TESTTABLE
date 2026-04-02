@@ -2,39 +2,31 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Форма</title>
+<title>Форма продажи/прихода</title>
 </head>
 <body>
 
-<!-- iframe чтобы не было перезагрузки -->
-<iframe name="hiddenFrame" style="display:none;"></iframe>
+<form id="mainForm">
 
-<form 
-  action="https://script.google.com/macros/s/AKfycbwThPBYjyZUF3u5B-fcD2XhntRHbjU2aMjtae67YCGEpGwxuPs1TmFKrZZPS09tByvKKQ/exec"
-  method="POST"
-  target="hiddenFrame"
-  id="mainForm"
->
+  <input type="date" name="Дата" id="myDate"><br><br>
 
-<input type="date" name="Дата" id="myDate"><br><br>
+  <!-- клиент -->
+  <input type="text" name="name" id="input1" placeholder="Клиент" list="datalist1">
+  <br><br>
 
-<!-- клиент -->
-<input type="text" name="name" id="input1" placeholder="Клиент" list="datalist1">
-<br><br>
+  <!-- товары -->
+  <div id="items">
+    <input type="text" name="Товар1" placeholder="Товар" list="datalist2">
+    <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
+  </div>
 
-<!-- товары -->
-<div id="items">
-  <input type="text" name="Товар1" placeholder="Товар" list="datalist2">
-  <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
-</div>
+  <button type="button" onclick="addField()">+</button>
+  <br><br>
 
-<button type="button" onclick="addField()">+</button>
-<br><br>
+  <input type="hidden" name="form" id="formType">
 
-<input type="hidden" name="form" id="formType">
-
-<button type="submit" onclick="setType('myForm')">Продажа</button>
-<button type="submit" onclick="setType('myForm2')">Приход</button>
+  <button type="button" onclick="submitForm('myForm')">Продажа</button>
+  <button type="button" onclick="submitForm('myForm2')">Приход</button>
 
 </form>
 
@@ -43,25 +35,18 @@
 <datalist id="datalist2"></datalist>
 
 <script>
+// Ссылка на твой GAS exec URL
+const app = "https://script.google.com/macros/s/ВАШ_ID_ТАБЛИЦЫ/exec";
 
-// Вставь сюда ссылку на свой GAS скрипт
-const app = "https://script.google.com/macros/s/AKfycbwThPBYjyZUF3u5B-fcD2XhntRHbjU2aMjtae67YCGEpGwxuPs1TmFKrZZPS09tByvKKQ/exec";
-
-// Функция получения данных (JSONP)
+// Функция загрузки данных (JSONP)
 function loadData(data) {
-  console.log("Данные пришли:", data);
-  
   const dl1 = document.getElementById('datalist1');
   const dl2 = document.getElementById('datalist2');
 
-  // Очистка старых опций
   dl1.innerHTML = "";
   dl2.innerHTML = "";
 
-  if (!data.clients || !data.products) {
-    console.error("В данных нет clients или products!", data);
-    return;
-  }
+  if (!data.clients || !data.products) return;
 
   data.clients.forEach(c => {
     let o = document.createElement("option");
@@ -74,21 +59,17 @@ function loadData(data) {
     o.value = p;
     dl2.appendChild(o);
   });
-
-  console.log("Списки клиентов и товаров обновлены");
 }
 
-// Автозагрузка данных из GAS
+// Загрузка клиентов и товаров через JSONP
 (function() {
   const script = document.createElement("script");
   script.src = app + "?callback=loadData&t=" + Date.now();
-  script.onerror = function() {
-    console.error("Не удалось загрузить скрипт! Проверьте права доступа GAS.");
-  };
+  script.onerror = () => console.error("Не удалось загрузить данные из GAS");
   document.head.appendChild(script);
 })();
 
-// Функции добавления поля и установки типа формы
+// Добавление нового поля товара
 function addField() {
   const itemsDiv = document.getElementById("items");
   const count = itemsDiv.querySelectorAll("input[name^='Товар']").length + 1;
@@ -100,10 +81,21 @@ function addField() {
   itemsDiv.insertAdjacentHTML("beforeend", html);
 }
 
-function setType(type) {
+// Отправка формы через fetch
+function submitForm(type) {
   document.getElementById("formType").value = type;
-}
 
+  const form = document.getElementById("mainForm");
+  const formData = new FormData(form);
+
+  fetch(app, {
+    method: "POST",
+    body: formData
+  })
+  .then(response => response.text())
+  .then(text => alert(text))
+  .catch(err => console.error("Ошибка отправки формы:", err));
+}
 </script>
 </body>
 </html>
