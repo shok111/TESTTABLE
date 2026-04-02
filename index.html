@@ -6,91 +6,48 @@
 </head>
 <body>
 
-<form id="mainForm">
+<!-- скрытый iframe чтобы не было перезагрузки -->
+<iframe name="hiddenFrame" style="display:none;"></iframe>
 
+<form 
+  action="https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec"
+  method="POST"
+  target="hiddenFrame"
+  id="mainForm"
+>
+
+  <!-- дата -->
   <input type="date" name="Дата" id="myDate"><br><br>
 
-  <!-- Клиент -->
-  <input type="text" name="name" id="input1" placeholder="Клиент" list="datalist1">
-  <br><br>
+  <!-- клиент -->
+  <input type="text" name="name" placeholder="Клиент"><br><br>
 
-  <!-- Товары -->
-  <input type="text" name="Товар1" placeholder="Товар" list="datalist2">
+  <!-- товары -->
+  <input type="text" name="Товар1" placeholder="Товар">
   <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
 
-  <input type="text" name="Товар2" placeholder="Товар" list="datalist2">
+  <input type="text" name="Товар2" placeholder="Товар">
   <input type="text" name="Кількість2" placeholder="Кількість"><br><br>
 
-  <input type="text" name="Товар3" placeholder="Товар" list="datalist2">
+  <input type="text" name="Товар3" placeholder="Товар">
   <input type="text" name="Кількість3" placeholder="Кількість"><br><br>
 
-  <!-- datalist (ОДИН раз!) -->
-  <datalist id="datalist1"></datalist>
-  <datalist id="datalist2"></datalist>
-
+  <!-- тип формы -->
   <input type="hidden" name="form" id="formType">
 
-  <button type="button" onclick="addField()">+</button>
-
-  <br><br>
-
-  <button type="button" onclick="submitForm('myForm')">Продажа</button>
-  <button type="button" onclick="submitForm('myForm2')">Приход</button>
+  <!-- кнопки -->
+  <button type="submit" onclick="setType('myForm')">Продажа</button>
+  <button type="submit" onclick="setType('myForm2')">Приход</button>
 
 </form>
 
 <script>
-const app = "https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec";
-
-// загрузка списков
-fetch(app)
-.then(res => res.json())
-.then(data => {
-    let dl1 = document.getElementById('datalist1');
-    let dl2 = document.getElementById('datalist2');
-
-    data.clients.forEach(c => {
-        let o = document.createElement("option");
-        o.value = c;
-        dl1.appendChild(o);
-    });
-
-    data.products.forEach(p => {
-        let o = document.createElement("option");
-        o.value = p;
-        dl2.appendChild(o);
-    });
-});
-
-// дата сегодня
+// сегодняшняя дата
 document.getElementById('myDate').valueAsDate = new Date();
 
-// добавление строк
-let count = 3;
-function addField() {
-    count++;
-    let div = document.createElement("div");
-    div.innerHTML = `
-      <input type="text" name="Товар${count}" placeholder="Товар" list="datalist2">
-      <input type="text" name="Кількість${count}" placeholder="Кількість"><br><br>
-    `;
-    document.getElementById("mainForm").appendChild(div);
-}
-
-// отправка
-function submitForm(type) {
-    let form = document.getElementById('mainForm');
-    let formData = new FormData(form);
-
-    formData.set("form", type);
-
-    fetch(app, {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.text())
-    .then(res => alert(res))
-    .catch(err => console.error(err));
+// установка типа формы
+function setType(type){
+  document.getElementById("formType").value = type;
 }
 </script>
 
