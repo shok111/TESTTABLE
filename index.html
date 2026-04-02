@@ -42,7 +42,7 @@
 	</form>
 	<script>
 		(function () {
-			var app = "https://script.google.com/macros/s/AKfycbwZcm11FfHLNmJuV-sYfw8uBl5UV-2wKtlH0BeL9uj3JKe7s3Cfbe4VJy9A4EAV17buAQ/exec",
+			var app = "https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec",
 				output = '',
 				xhr = new XMLHttpRequest();
 			xhr.open('GET', app);
@@ -92,7 +92,7 @@
 		})()
 
 		function generateFormData() {
-			var spreadsheet = SpreadsheetApp.openById('https://script.google.com/macros/s/AKfycbwZcm11FfHLNmJuV-sYfw8uBl5UV-2wKtlH0BeL9uj3JKe7s3Cfbe4VJy9A4EAV17buAQ/exec');
+			var spreadsheet = SpreadsheetApp.openById('https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec');
 			var sheet = spreadsheet.getSheetByName('Кліенти, товари');
 
 			// Получаем список клиентов из столбца A
@@ -176,7 +176,7 @@
     
     formData.append("Дата", formattedDate); // Добавляем дату в формате YYYY-MM-DD
 
-    fetch('https://script.google.com/macros/s/AKfycbwZcm11FfHLNmJuV-sYfw8uBl5UV-2wKtlH0BeL9uj3JKe7s3Cfbe4VJy9A4EAV17buAQ/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec', {
         method: 'POST',
         body: formData
     })
