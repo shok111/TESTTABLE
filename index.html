@@ -1,196 +1,95 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-	<title>Форма для отправки данных в Google Таблицу</title>
+<meta charset="UTF-8">
+<title>Форма</title>
 </head>
-
 <body>
-	<form id="myForm2">
-		<input type="date" name="Дата" id="myDate2" value=""><br><br>
-		<input type="text" name="Товар1" id="input2" placeholder="Товар" list="datalist2">
-		<datalist id="datalist2"></datalist>
-		<input type="text" name="Кількість1" placeholder="Кількість"><br><br>
-		<input type="text" name="Товар2" placeholder="Товар" list="datalist2">
-		<datalist id="datalist2"></datalist>
-		<input type="text" name="Кількість2" placeholder="Кількість"><br><br>
-		<input type="text" name="Товар3" placeholder="Товар" list="datalist2">
-		<datalist id="datalist2"></datalist>
-		<input type="text" name="Кількість3" placeholder="Кількість"><br><br>
-		<input type="hidden" name="form" value="myForm2">
-		<button type="button" onclick="addEmailField2()">+</button>
-		<button type="button" onclick="submitForm('myForm2')">Отправить</button>
-	</form>
-	<br><br>
-	<form id="myForm">
-		<input type="date" name="Дата" id="myDate" value="">
-		<input type="text" name="name" id="input1" placeholder="name" list="datalist1">
-		<datalist id="datalist1"></datalist>
-		<br><br>
-		<input type="text" name="Товар1" placeholder="Товар" list="datalist2">
-		<datalist id="datalist2"></datalist>
-		<input type="text" name="Кількість1" placeholder="Кількість"><br><br>
-		<input type="text" name="Товар2" placeholder="Товар" list="datalist2">
-		<datalist id="datalist2"></datalist>
-		<input type="text" name="Кількість2" placeholder="Кількість"><br><br>
-		<input type="text" name="Товар3" placeholder="Товар" list="datalist2">
-		<datalist id="datalist2"></datalist>
-		<input type="text" name="Кількість3" placeholder="Кількість"><br><br>
-		<input type="hidden" name="form" value="myForm">
-		<button type="button" onclick="addEmailField()">+</button>
-		<button type="button" onclick="submitForm('myForm')">Отправить</button>
-	</form>
-	<script>
-		(function () {
-			var app = "https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec",
-				output = '',
-				xhr = new XMLHttpRequest();
-			xhr.open('GET', app);
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState !== 4) return;
 
-				if (xhr.status == 200) {
-					try {
-						var r = JSON.parse(xhr.responseText),
-							result = r["result"];
+<!-- iframe чтобы не было перезагрузки -->
+<iframe name="hiddenFrame" style="display:none;"></iframe>
 
-						for (var i = 0; i < result.length; i++) {
-							var obj = r["result"][i];
-							output += obj.join("<br/>") + "<br/><hr/>";
-						}
+<form 
+  action="https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec"
+  method="POST"
+  target="hiddenFrame"
+  id="mainForm"
+>
 
-						// var datalist1 = document.createElement("datalist");
-						// var datalist2 = document.createElement("datalist");
-						var datalist1 = document.getElementById('datalist1');
-						var datalist2 = document.getElementById('datalist2');
+<input type="date" name="Дата" id="myDate"><br><br>
 
-						// Извлекаем данные и добавляем их в datalist
-						r.result.forEach(function (item) {
-							var option1 = document.createElement("option");
-							var option2 = document.createElement("option");
+<!-- клиент -->
+<input type="text" name="name" id="input1" placeholder="Клиент" list="datalist1">
+<br><br>
 
-							option1.value = item[0];
-							option2.value = item[1];
+<!-- товары -->
+<div id="items">
+  <input type="text" name="Товар1" placeholder="Товар" list="datalist2">
+  <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
+</div>
 
-							datalist1.appendChild(option1);
-							datalist2.appendChild(option2);
+<button type="button" onclick="addField()">+</button>
 
-						});
+<br><br>
 
-						var input1 = document.getElementById('input1');
-						var input2 = document.getElementById('input2');
+<input type="hidden" name="form" id="formType">
 
-						input1.setAttribute('list', 'datalist1');
-						input2.setAttribute('list', 'datalist2');
+<button type="submit" onclick="setType('myForm')">Продажа</button>
+<button type="submit" onclick="setType('myForm2')">Приход</button>
 
-					} catch (e) { }
-				}
-				console.log(datalist1);
+</form>
 
-			}
-			xhr.send()
-		})()
+<!-- datalist (ОДИН РАЗ!) -->
+<datalist id="datalist1"></datalist>
+<datalist id="datalist2"></datalist>
 
-		function generateFormData() {
-			var spreadsheet = SpreadsheetApp.openById('https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec');
-			var sheet = spreadsheet.getSheetByName('Кліенти, товари');
+<script>
+const app = "https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec";
 
-			// Получаем список клиентов из столбца A
-			var clientsRange = sheet.getRange('A:A');
-			var clientsValues = clientsRange.getValues().filter(String).map(function (row) {
-				return row[0];
-			});
+// дата
+document.getElementById('myDate').valueAsDate = new Date();
 
-			// Получаем список товаров из столбца B
-			var productsRange = sheet.getRange('B:B');
-			var productsValues = productsRange.getValues().filter(String).map(function (row) {
-				return row[0];
-			});
-
-			var formData = {
-				clients: clientsValues,
-				products: productsValues
-			};
-
-			return formData;
-		}
-
-
-		document.getElementById('myDate').valueAsDate = new Date();
-		document.getElementById('myDate2').valueAsDate = new Date();
-		let emailCount = 3;
-
-		function addEmailField() {
-			emailCount++;
-			const myForm = document.getElementById('myForm');
-			if (myForm) {
-				const newEmailField = document.createElement('div');
-				newEmailField.innerHTML = `<input type="text" name="Товар${emailCount}" placeholder="Товар" list="datalist2"> <datalist id="datalist2"></datalist> <input type="text" name="Кількість${emailCount}" placeholder="Кількість"><br><br>`;
-				const addButton = myForm.querySelector('button[type="button"][onclick="addEmailField()"]');
-				myForm.insertBefore(newEmailField, addButton);
-			} else {
-				console.error('Элемент с идентификатором "myForm" не найден.');
-			}
-		}
-
-		function addEmailField2() {
-			emailCount++;
-			const myForm2 = document.getElementById('myForm2');
-			if (myForm2) {
-				const newEmailField = document.createElement('div');
-				newEmailField.innerHTML = `<input type="text" name="Товар${emailCount}" placeholder="Товар" list="datalist2"> <datalist id="datalist2"></datalist> <input type="text" name="Кількість${emailCount}" placeholder="Кількість"><br><br>`;
-				const addButton = myForm2.querySelector('button[type="button"][onclick="addEmailField2()"]');
-				myForm2.insertBefore(newEmailField, addButton);
-			} else {
-				console.error('Элемент с идентификатором "myForm2" не найден.');
-			}
-		}
-
-		// function submitForm() {
-		// 	var formData = new FormData(document.getElementById("myForm"));
-		// 	fetch('https://script.google.com/macros/s/AKfycbwZcm11FfHLNmJuV-sYfw8uBl5UV-2wKtlH0BeL9uj3JKe7s3Cfbe4VJy9A4EAV17buAQ/exec', {
-		// 		method: 'POST',
-		// 		body: formData
-		// 	})
-		// 		.then(response => {
-		// 			if (!response.ok) {
-		// 				throw new Error('Произошла ошибка.');
-		// 			}
-		// 			alert('Данные успешно отправлены!');
-		// 		})
-		// 		.catch(error => {
-		// 			console.error('Произошла ошибка:', error);
-		// 		});
-		// }
-
-
-		function submitForm(formId) {
-    let form = document.getElementById(formId);
-    let formData = new FormData(form);
-
-    // Форматируем дату перед отправкой
-    let date = new Date();
-    let formattedDate = date.getFullYear() + '-' + 
-                        (date.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                        date.getDate().toString().padStart(2, '0');
-    
-    formData.append("Дата", formattedDate); // Добавляем дату в формате YYYY-MM-DD
-
-    fetch('https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Произошла ошибка.');
-        }
-        alert('Данные успешно отправлены!');
-    })
-    .catch(error => {
-        console.error('Произошла ошибка:', error);
-    });
+// тип формы
+function setType(type){
+  document.getElementById("formType").value = type;
 }
-	</script>
-</body>
 
+// добавление товаров
+let count = 1;
+function addField(){
+  count++;
+  let div = document.createElement("div");
+  div.innerHTML = `
+    <input type="text" name="Товар${count}" placeholder="Товар" list="datalist2">
+    <input type="text" name="Кількість${count}" placeholder="Кількість"><br><br>
+  `;
+  document.getElementById("items").appendChild(div);
+}
+
+// 🔥 JSONP загрузка (без CORS)
+function loadData(data){
+  let dl1 = document.getElementById('datalist1');
+  let dl2 = document.getElementById('datalist2');
+
+  data.clients.forEach(c => {
+    let o = document.createElement("option");
+    o.value = c;
+    dl1.appendChild(o);
+  });
+
+  data.products.forEach(p => {
+    let o = document.createElement("option");
+    o.value = p;
+    dl2.appendChild(o);
+  });
+}
+
+// подключаем GAS как script
+let script = document.createElement("script");
+script.src = app + "?callback=loadData";
+document.body.appendChild(script);
+
+</script>
+
+</body>
 </html>
