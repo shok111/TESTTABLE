@@ -1,95 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Форма</title>
+  <meta charset="UTF-8">
+  <title>Форма Продаж / Прихідна</title>
 </head>
 <body>
+  <h2>Прихідна</h2>
+  <form id="myForm2">
+    <input type="date" name="Дата" id="myDate2"><br><br>
+    <input type="text" name="Товар1" placeholder="Товар" list="products">
+    <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
+    <input type="hidden" name="form" value="myForm2">
+    <button type="button" onclick="addField('myForm2')">+</button>
+    <button type="button" onclick="submitForm('myForm2')">Отправить</button>
+  </form>
 
-<!-- iframe чтобы не было перезагрузки -->
-<iframe name="hiddenFrame" style="display:none;"></iframe>
+  <h2>Продаж</h2>
+  <form id="myForm">
+    <input type="date" name="Дата" id="myDate"><br><br>
+    <input type="text" name="name" placeholder="Клиент" list="clients"><br><br>
+    <input type="text" name="Товар1" placeholder="Товар" list="products">
+    <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
+    <input type="hidden" name="form" value="myForm">
+    <button type="button" onclick="addField('myForm')">+</button>
+    <button type="button" onclick="submitForm('myForm')">Отправить</button>
+  </form>
 
-<form 
-  action="https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec"
-  method="POST"
-  target="hiddenFrame"
-  id="mainForm"
->
-
-<input type="date" name="Дата" id="myDate"><br><br>
-
-<!-- клиент -->
-<input type="text" name="name" id="input1" placeholder="Клиент" list="datalist1">
-<br><br>
-
-<!-- товары -->
-<div id="items">
-  <input type="text" name="Товар1" placeholder="Товар" list="datalist2">
-  <input type="text" name="Кількість1" placeholder="Кількість"><br><br>
-</div>
-
-<button type="button" onclick="addField()">+</button>
-
-<br><br>
-
-<input type="hidden" name="form" id="formType">
-
-<button type="submit" onclick="setType('myForm')">Продажа</button>
-<button type="submit" onclick="setType('myForm2')">Приход</button>
-
-</form>
-
-<!-- datalist (ОДИН РАЗ!) -->
-<datalist id="datalist1"></datalist>
-<datalist id="datalist2"></datalist>
+  <datalist id="clients"></datalist>
+  <datalist id="products"></datalist>
 
 <script>
-const app = "https://script.google.com/macros/s/AKfycbycUBV2AJRWj-rOjfOqPW319PExluJltXk_8CV8YqQ9mrpG27jgZHDnZd75n_xFYI6zsQ/exec";
+const SCRIPT_URL = 'ВАШ_DOPOST_DOGET_URL'; // <-- ссылка веб-приложения GAS
 
-// дата
+// подставляем текущую дату
 document.getElementById('myDate').valueAsDate = new Date();
+document.getElementById('myDate2').valueAsDate = new Date();
 
-// тип формы
-function setType(type){
-  document.getElementById("formType").value = type;
-}
-
-// добавление товаров
-let count = 1;
-function addField(){
-  count++;
-  let div = document.createElement("div");
-  div.innerHTML = `
-    <input type="text" name="Товар${count}" placeholder="Товар" list="datalist2">
-    <input type="text" name="Кількість${count}" placeholder="Кількість"><br><br>
-  `;
-  document.getElementById("items").appendChild(div);
-}
-
-// 🔥 JSONP загрузка (без CORS)
-function loadData(data){
-  let dl1 = document.getElementById('datalist1');
-  let dl2 = document.getElementById('datalist2');
-
-  data.clients.forEach(c => {
-    let o = document.createElement("option");
-    o.value = c;
-    dl1.appendChild(o);
+// подгружаем клиенты и товары
+fetch(SCRIPT_URL)
+  .then(res => res.json())
+  .then(data => {
+    const clients = document.getElementById('clients');
+    const products = document.getElementById('products');
+    data.clients.forEach(c => clients.appendChild(new Option(c)));
+    data.products.forEach(p => products.appendChild(new Option(p)));
   });
 
-  data.products.forEach(p => {
-    let o = document.createElement("option");
-    o.value = p;
-    dl2.appendChild(o);
-  });
+// добавить новые поля товара/кол-во
+function addField(formId) {
+  const form = document.getElementById(formId);
+  const count = form.querySelectorAll('input[name^="Товар"]').length + 1;
+  const div = document.createElement('div');
+  div.innerHTML = `<input type="text" name="Товар${count}" placeholder="Товар" list="products">
+                   <input type="text" name="Кількість${count}" placeholder="Кількість"><br><br>`;
+  form.insertBefore(div, form.querySelector('button[onclick^="addField"]'));
 }
 
-// подключаем GAS как script
-let script = document.createElement("script");
-script.src = app + "?callback=loadData";
-document.body.appendChild(script);
-
+// отправка формы
+function submitForm(formId) {
+  const form = document.getElementById(formId);
+  const formData = new FormData(form);
+  fetch(SCRIPT_URL, {method: 'POST', body: formData})
+    .then(res => res.text())
+    .then(txt => alert(txt))
+    .catch(err => console.error(err));
+}
 </script>
-
 </body>
 </html>
